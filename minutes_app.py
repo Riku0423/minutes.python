@@ -19,6 +19,8 @@ import google.api_core.exceptions
 from docx import Document
 import datetime
 import xml.parsers.expat
+from tkinter import ttk
+from PIL import Image, ImageTk
 
 # ユーザーディレクトリのDocumentsフォルダのパスを取得
 documents_path = Path.home() / "Documents"
@@ -508,55 +510,61 @@ def show_main_menu():
     for widget in root.winfo_children():
         widget.destroy()
 
-    root.title("ファイル処理ツール")
-    root.geometry("900x500")
-    root.resizable(False, False)  # ウィンドウのサイズを固定
+    root.title("爆速議事録")
+    root.geometry("1000x600")
+    root.resizable(False, False)
+
+    # 背景色を設定
+    root.configure(bg="#f0f0f0")
 
     # タイトルラベル
-    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Arial Black", 32, "bold"))
-    title_label.pack(pady=20)
+    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Helvetica", 36, "bold"), bg="#f0f0f0", fg="#333333")
+    title_label.pack(pady=30)
+
+    # メインフレーム
+    main_frame = tk.Frame(root, bg="#f0f0f0")
+    main_frame.pack(expand=True, fill="both", padx=50)
 
     # 音声ファイル処理フレーム
-    audio_frame = tk.Frame(root, bd=2, relief="groove", width=350, height=400)
-    audio_frame.pack_propagate(False)  # フレームのサイズを固定
-    audio_frame.pack(side="left", padx=60, pady=20)  # 中央のスペースを縮める
-
-    audio_label = tk.Label(audio_frame, text="音声ファイル処理", font=("Arial", 16, "bold"))
-    audio_label.pack(pady=20)
-
-    audio_button = tk.Button(audio_frame, text="音声ファイルを選択する", command=upload_audio_file)
-    audio_button.pack(pady=10)
-
-    file_label = tk.Label(audio_frame, text="選択したファイル", wraplength=300, justify="center")
-    file_label.pack(pady=10)
-
-    process_audio_button = tk.Button(audio_frame, text="音声ファイルを処理する", command=complete_audio_upload)
-    process_audio_button.pack(pady=(20, 0))  # 初期位置を下げて固定
-
-    # 処理中のラベル
-    uploading_label = tk.Label(audio_frame, text="")
-    uploading_label.pack(pady=25)
+    audio_frame = create_process_frame(main_frame, "音声ファイル処理", upload_audio_file, complete_audio_upload)
+    audio_frame.pack(side="left", padx=(0, 25))
 
     # Excelファイル処理フレーム
-    excel_frame = tk.Frame(root, bd=2, relief="groove", width=350, height=400)
-    excel_frame.pack_propagate(False)  # フレームのサイズを固定
-    excel_frame.pack(side="right", padx=60, pady=20)  # 中央のスペースを縮める
+    excel_frame = create_process_frame(main_frame, "Excelファイル処理", upload_xlsx_file, complete_xlsx_upload)
+    excel_frame.pack(side="right", padx=(25, 0))
 
-    excel_label = tk.Label(excel_frame, text="Excelファイル処理", font=("Arial", 16, "bold"))
-    excel_label.pack(pady=20)
+def create_process_frame(parent, title, upload_func, process_func):
+    frame = tk.Frame(parent, bg="white", bd=0, relief="ridge", width=400, height=450)
+    frame.pack_propagate(False)
 
-    excel_button = tk.Button(excel_frame, text="Excelファイルを選択する", command=upload_xlsx_file)
-    excel_button.pack(pady=10)
+    title_label = tk.Label(frame, text=title, font=("Helvetica", 18, "bold"), bg="white", fg="#333333")
+    title_label.pack(pady=20)
 
-    excel_file_label = tk.Label(excel_frame, text="選択したファイル", wraplength=300, justify="center")
-    excel_file_label.pack(pady=10)
+    upload_button = ttk.Button(frame, text="ファイルを選択", command=upload_func, style="TButton")
+    upload_button.pack(pady=10)
 
-    process_excel_button = tk.Button(excel_frame, text="Excelファイルを処理する", command=complete_xlsx_upload)
-    process_excel_button.pack(pady=(20, 0))
+    file_label = tk.Label(frame, text="選択したファイル", wraplength=350, justify="center", bg="white", fg="#666666")
+    file_label.pack(pady=10)
 
-    # 処理中のラベル
-    elapsed_time_label = tk.Label(excel_frame, text="")
-    elapsed_time_label.pack(pady=25)
+    process_button = ttk.Button(frame, text="ファイルを処理", command=process_func, style="TButton")
+    process_button.pack(pady=(20, 0))
+
+    status_label = tk.Label(frame, text="", bg="white", fg="#666666")
+    status_label.pack(pady=25)
+
+    return frame
+
+def configure_styles():
+    style = ttk.Style()
+    style.theme_use('clam')
+    style.configure("TButton", 
+                    font=("Helvetica", 12),
+                    background="#4CAF50",
+                    foreground="white",
+                    padding=10,
+                    width=20)
+    style.map("TButton",
+              background=[('active', '#45a049')])
 
 def upload_audio_file():
     global selected_file
@@ -631,16 +639,13 @@ def main():
     global root
     try:
         root = tk.Tk()
-        root.title("ファイル処理ツール")
-        root.geometry("500x300")
-
+        configure_styles()
         show_main_menu()
-
         root.mainloop()
     except Exception as e:
         logging.exception("アプリケーションの実行中にエラーが発生しました。")
         messagebox.showerror("エラー", f"アプリケーションの実行中にエラーが発生しました:\n{str(e)}")
-        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")  # エラーログを追加
+        logging.error(f"アプリケーションの起動時にエラーが発生しました: {str(e)}")
 
 if __name__ == "__main__":
     main()
