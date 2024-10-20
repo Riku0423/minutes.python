@@ -19,7 +19,7 @@ import google.api_core.exceptions
 from docx import Document
 import datetime
 import xml.parsers.expat
-from tkinter import ttk
+from tkinter import ttk, font
 from PIL import Image, ImageTk
 
 # ユーザーディレクトリのDocumentsフォルダのパスを取得
@@ -201,7 +201,7 @@ def get_audio_duration(audio_file_path):
     return float(result.stdout.strip())
 
 def transcribe_audio_with_key(audio_file, api_key, retries=3):
-    """指定されたAPIキーを使用して音声ファイルを文字起こしする関数"""
+    """指定されたAPIキーを使用して音声ファイルを文字起こしする���数"""
     for attempt in range(retries):
         try:
             with open(audio_file, 'rb') as audio:
@@ -230,7 +230,7 @@ def transcribe_audio_with_key(audio_file, api_key, retries=3):
                 logging.info(f"{audio_file}の文字起こしが成功しました。")  # 成功メッセージのみ
                 return response.text
             else:
-                logging.error(f"文字起こし失敗: {audio_file} - レスンスにテキストが含まれていません。")
+                logging.error(f"文字起こし失敗: {audio_file} - レスポンスにテキストが含まれていません。")
         except google.api_core.exceptions.ResourceExhausted:
             logging.error(f"文字起こし失敗: {audio_file} - 429 Resource has been exhausted (e.g. check quota).")
         except Exception as e:
@@ -515,14 +515,14 @@ def show_main_menu():
     root.resizable(False, False)
 
     # 背景色を設定
-    root.configure(bg="#f0f0f0")
+    root.configure(bg="#f5f5f5")
 
     # タイトルラベル
-    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Helvetica", 36, "bold"), bg="#f0f0f0", fg="#333333")
+    title_label = tk.Label(root, text="⚡️爆速議事録", font=("Noto Sans CJK JP", 40, "bold"), bg="#f5f5f5", fg="#333333")
     title_label.pack(pady=30)
 
     # メインフレーム
-    main_frame = tk.Frame(root, bg="#f0f0f0")
+    main_frame = tk.Frame(root, bg="#f5f5f5")
     main_frame.pack(expand=True, fill="both", padx=50)
 
     # 音声ファイル処理フレーム
@@ -537,19 +537,19 @@ def create_process_frame(parent, title, upload_func, process_func):
     frame = tk.Frame(parent, bg="white", bd=0, relief="ridge", width=400, height=450)
     frame.pack_propagate(False)
 
-    title_label = tk.Label(frame, text=title, font=("Helvetica", 18, "bold"), bg="white", fg="#333333")
+    title_label = tk.Label(frame, text=title, font=("Noto Sans CJK JP", 20, "bold"), bg="white", fg="#333333")
     title_label.pack(pady=20)
 
     upload_button = ttk.Button(frame, text="ファイルを選択", command=upload_func, style="TButton")
     upload_button.pack(pady=10)
 
-    file_label = tk.Label(frame, text="選択したファイル", wraplength=350, justify="center", bg="white", fg="#666666")
+    file_label = tk.Label(frame, text="選択したファイル", wraplength=350, justify="center", bg="white", fg="#666666", font=("Noto Sans CJK JP", 12))
     file_label.pack(pady=10)
 
     process_button = ttk.Button(frame, text="ファイルを処理", command=process_func, style="TButton")
     process_button.pack(pady=(20, 0))
 
-    status_label = tk.Label(frame, text="", bg="white", fg="#666666")
+    status_label = tk.Label(frame, text="", bg="white", fg="#666666", font=("Noto Sans CJK JP", 12))
     status_label.pack(pady=25)
 
     return frame
@@ -558,7 +558,7 @@ def configure_styles():
     style = ttk.Style()
     style.theme_use('clam')
     style.configure("TButton", 
-                    font=("Helvetica", 12),
+                    font=("Noto Sans CJK JP", 14),
                     background="#4CAF50",
                     foreground="white",
                     padding=10,
@@ -639,6 +639,11 @@ def main():
     global root
     try:
         root = tk.Tk()
+        # フォントの設定
+        default_font = font.nametofont("TkDefaultFont")
+        default_font.configure(family="Noto Sans CJK JP", size=12)
+        root.option_add("*Font", default_font)
+        
         configure_styles()
         show_main_menu()
         root.mainloop()
